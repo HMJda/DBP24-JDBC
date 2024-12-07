@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,9 +104,9 @@ public class CarDAO {
         return resultMessage;
     }
     /** 총이용시간 검색 */
-    public List<Object[]> getCarUsage(String selectSort) throws SQLException {
-        return getCarUsage(false, selectSort); // 조건 없는 기본 쿼리 실행
-    }
+//    public List<Object[]> getCarUsage(String selectSort) throws SQLException {
+//        return getCarUsage(false, selectSort); // 조건 없는 기본 쿼리 실행
+//    }
     public List<Object[]> getCarUsage(boolean registedMember, String selectSort) throws SQLException {
         List<Object[]> resultList = new ArrayList<>();
         String member = "";
@@ -119,8 +120,10 @@ public class CarDAO {
         String query =
                 "SELECT " +
                         "    주차.차량번호, " +
+                        "    차량.경고누적수, "+
+                        "    차량.불이익단계, "+
                         member +
-                        "    SUM(NVL(주차.출차일시, SYSDATE) - 주차.입차일시) AS 총이용시간 " +
+                        "    SUM((NVL(주차.출차일시, SYSDATE) - 주차.입차일시) * 24 * 60) AS 총이용시간 " +
                         "FROM " +
                         "    주차 " +
                         "JOIN " +
@@ -128,30 +131,32 @@ public class CarDAO {
                         memberJoin +
                         "GROUP BY " +
                         member +
+                        "    차량.경고누적수, "+
+                        "    차량.불이익단계, "+
                         "    주차.차량번호 " +
                         "ORDER BY " +
                         "    총이용시간 " + selectSort; //DESC, ASC
 
         DB_Conn dbConn = new DB_Conn();
+        dbConn.DB_Connect();
         try (Connection conn = dbConn.getConnection()) {
 
             PreparedStatement pstmt = conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                CarDTO car = new CarDTO();
-                car.setCarNumber(rs.getString("차량번호"));
-                car.setWarningCount(rs.getInt("경고누적수"));
-                car.setPenaltyLevel(rs.getInt("불이익단계"));
-                MemberDTO memberDTO = new MemberDTO();
-
-                // 총 이용 시간 등 추가 데이터를 member나 car에 필요시 추가 가능
+                String carNumber = rs.getString("차량번호");
+                int warningCount = rs.getInt("경고누적수");
+                int penaltyLevel = rs.getInt("불이익단계");
                 double totalUsageTime = rs.getDouble("총이용시간");
+                long hours = (long) (totalUsageTime / 60);
+                long minutes = (long) (totalUsageTime % 60);
+                String formattedTime = String.format("%02d시%02d분", hours, minutes);
                 if (registedMember) {
-                    memberDTO.setName(rs.getString("이름"));
-                    resultList.add(new Object[]{car, member, totalUsageTime});
+                    String name= (rs.getString("이름"));
+                    resultList.add(new Object[]{carNumber, name, warningCount, penaltyLevel, formattedTime});
                 } else {
-                    resultList.add(new Object[]{car, totalUsageTime});
+                    resultList.add(new Object[]{carNumber, warningCount, penaltyLevel, formattedTime});
                 }
             }
         } catch (SQLException e) {
