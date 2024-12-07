@@ -1,11 +1,20 @@
 package UI;
 
+import DB.DB_Conn; // DB 연결을 위한 클래스
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ManagementUI extends JPanel {
+
+    private JTable userTable; // 회원 정보를 표시할 JTable
+    private DefaultTableModel tableModel; // 테이블 모델
+    private String[] columnNames = {"회원 ID", "이름", "연락처", "소속", "주소"};
 
     public ManagementUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -29,29 +38,21 @@ public class ManagementUI extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(15);
-        addPlaceholder(searchField, "검색");
+        searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");
-        searchButton.setPreferredSize(new Dimension(62, 30)); // 버튼 크기 설정
-        searchPanel.add(searchField);
+        searchButton.addActionListener(e -> searchUserData(searchField.getText()));
         searchPanel.add(searchButton);
 
-        JButton filterButton = createStyledButton("Filter");
-        filterButton.setPreferredSize(new Dimension(65, 30)); // 버튼 크기 설정
+        JButton filterButton = createStyledButton("필터");
+        filterButton.addActionListener(e -> applyFilter());
         searchPanel.add(filterButton);
 
         headerPanel.add(searchPanel, BorderLayout.EAST);
 
         // 데이터 테이블
-        String[] columnNames = {"회원 ID", "이름", "연락처", "소속", "주소"};
-        Object[][] data = {
-                {"sdb123", "이민준", "010-7000-8327", "학생", "부산 부산진구 중앙대로123번길 15-9"},
-                {"sdg325", "허민재", "010-2300-1234", "학생", "부산 부산진구 중앙대로123번길 15-9"},
-                {"skd343", "이창건", "010-2900-5678", "교수", "부산 부산진구 배화123번길 15-9"}
-        };
-
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
-        JTable userTable = new JTable(tableModel);
+        tableModel = new DefaultTableModel(columnNames, 0);
+        userTable = new JTable(tableModel);
         styleTable(userTable);
 
         JScrollPane tableScrollPane = new JScrollPane(userTable);
@@ -70,16 +71,17 @@ public class ManagementUI extends JPanel {
         contentPanel.add(tableScrollPane, BorderLayout.CENTER);
         contentPanel.add(footerPanel, BorderLayout.SOUTH);
 
+        // 콘텐츠 패널을 현재 패널에 추가
+        add(contentPanel, BorderLayout.CENTER);
+
+        // 회원 데이터 로드
+        loadUserData();
+
         // 이벤트 리스너 추가
         addUserButton.addActionListener(e -> {
             CardLayout cardLayout = (CardLayout) mainPanel.getLayout();
             cardLayout.show(mainPanel, "MemberRegistrationUI"); // MemberRegistrationUI로 전환
         });
-
-        filterButton.addActionListener(e -> applyFilter(columnNames, data, tableModel, userTable));
-
-        // 콘텐츠 패널을 현재 패널에 추가
-        add(contentPanel, BorderLayout.CENTER);
     }
 
     private JButton createStyledButton(String text) {
@@ -87,8 +89,6 @@ public class ManagementUI extends JPanel {
         button.setFocusPainted(false);
         button.setBackground(Color.BLACK);
         button.setForeground(Color.WHITE);
-        button.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
-        button.setPreferredSize(new Dimension(100, 30)); // 버튼 크기 설정
         return button;
     }
 
@@ -97,27 +97,6 @@ public class ManagementUI extends JPanel {
         button.setFocusPainted(false);
         button.setBackground(Color.BLACK);
         button.setForeground(Color.WHITE);
-        button.setPreferredSize(new Dimension(100, 30));
-    }
-
-    private void addPlaceholder(JTextField textField, String placeholder) {
-        textField.setText(placeholder);
-        textField.setForeground(Color.GRAY);
-        textField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
-                }
-            }
-
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                if (textField.getText().isEmpty()) {
-                    textField.setText(placeholder);
-                    textField.setForeground(Color.GRAY);
-                }
-            }
-        });
     }
 
     private void styleTable(JTable table) {
@@ -127,7 +106,90 @@ public class ManagementUI extends JPanel {
         table.getTableHeader().setReorderingAllowed(false);
     }
 
-    private void applyFilter(String[] columnNames, Object[][] data, DefaultTableModel tableModel, JTable userTable) {
+    private void loadUserData() {
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
+
+        String query = "SELECT 회원ID, 이름, 연락처, 소속, 주소 FROM 등록이용객"; // 데이터 조회 쿼리
+
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // 테이블 초기화
+            tableModel.setRowCount(0); // 기존 데이터 초기화
+
+            // 결과 집합을 테이블 모델에 추가
+            while (rs.next()) {
+                String memberId = rs.getString("회원ID");
+                String name = rs.getString("이름");
+                String contact = rs.getString("연락처");
+                String affiliation = rs.getString("소속");
+                String address = rs.getString("주소");
+
+                tableModel.addRow(new Object[]{memberId, name, contact, affiliation, address}); // 새로운 행 추가
+            }
+
+            if (tableModel.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "회원 정보가 없습니다."); // 데이터가 없을 경우 메시지
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "회원 정보를 로드하는 데 실패했습니다."); // 오류 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
+        }
+    }
+
+    private void searchUserData(String query) {
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
+
+        String sqlQuery = "SELECT 회원ID, 이름, 연락처, 소속, 주소 FROM 등록이용객";
+
+        // 입력된 검색어가 비어 있지 않으면 검색 쿼리를 추가
+        if (!query.trim().isEmpty()) {
+            sqlQuery += " WHERE 이름 LIKE ?";
+        }
+
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            // 검색어가 있을 경우 이름 조건 추가
+            if (!query.trim().isEmpty()) {
+                pstmt.setString(1, "%" + query + "%"); // LIKE 연산자로 부분 일치를 찾기
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                // 테이블 초기화
+                tableModel.setRowCount(0); // 기존 데이터 초기화
+
+                // 결과 집합을 테이블 모델에 추가
+                while (rs.next()) {
+                    String memberId = rs.getString("회원ID");
+                    String name = rs.getString("이름");
+                    String contact = rs.getString("연락처");
+                    String affiliation = rs.getString("소속");
+                    String address = rs.getString("주소");
+
+                    tableModel.addRow(new Object[]{memberId, name, contact, affiliation, address}); // 새로운 행 추가
+                }
+
+                if (tableModel.getRowCount() == 0) {
+                    JOptionPane.showMessageDialog(this, "검색 결과가 없습니다."); // 검색 결과가 없을 경우 메시지
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "회원 정보를 검색하는 데 실패했습니다."); // 오류 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
+        }
+    }
+
+    private void applyFilter() {
         JCheckBox[] checkBoxes = new JCheckBox[columnNames.length];
         JPanel filterPanel = new JPanel(new GridLayout(columnNames.length, 1));
         for (int i = 0; i < columnNames.length; i++) {
@@ -149,12 +211,12 @@ public class ManagementUI extends JPanel {
                 newModel.addColumn(columnNames[colIndex]);
             }
 
-            for (Object[] row : data) {
-                Object[] filteredRow = new Object[selectedColumns.size()];
+            for (int rowIndex = 0; rowIndex < tableModel.getRowCount(); rowIndex++) {
+                Object[] row = new Object[selectedColumns.size()];
                 for (int i = 0; i < selectedColumns.size(); i++) {
-                    filteredRow[i] = row[selectedColumns.get(i)];
+                    row[i] = tableModel.getValueAt(rowIndex, selectedColumns.get(i));
                 }
-                newModel.addRow(filteredRow);
+                newModel.addRow(row);
             }
             userTable.setModel(newModel);
         }

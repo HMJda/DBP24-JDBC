@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.sql.PreparedStatement;
+
 
 public class CarInUI extends JPanel {
 
@@ -70,7 +72,6 @@ public class CarInUI extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(15);
-        addPlaceholder(searchField, "검색");
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");
@@ -149,15 +150,51 @@ public class CarInUI extends JPanel {
     }
 
     private void searchParkingData(String query) {
-        // 검색 로직 구현
-        loadParkingData(); // 데이터를 로드한 후 필터링
-        for (int row = tableModel.getRowCount() - 1; row >= 0; row--) {
-            String carNumber = (String) tableModel.getValueAt(row, 0); // 차량번호 열
-            if (!carNumber.contains(query)) {
-                tableModel.removeRow(row);
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
+
+        String sqlQuery = "SELECT 차량번호, 공간번호, 주차장ID, 입차일시 FROM 주차";
+
+        // 입력된 검색어가 비어 있지 않으면 검색 쿼리를 추가
+        if (!query.trim().isEmpty()) {
+            sqlQuery += " WHERE 차량번호 LIKE ?";
+        }
+
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            // 검색어가 있을 경우 차량번호 조건 추가
+            if (!query.trim().isEmpty()) {
+                pstmt.setString(1, "%" + query + "%"); // LIKE 연산자로 부분 일치를 찾기
             }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                // 테이블 초기화
+                tableModel.setRowCount(0); // 기존 데이터 초기화
+
+                // 결과 집합을 테이블 모델에 추가
+                while (rs.next()) {
+                    String carNumber = rs.getString("차량번호");
+                    String spaceNumber = rs.getString("공간번호");
+                    String parkingId = rs.getString("주차장ID");
+                    String entryTime = rs.getString("입차일시");
+
+                    tableModel.addRow(new Object[]{carNumber, spaceNumber, parkingId, entryTime}); // 새로운 행 추가
+                }
+
+                if (tableModel.getRowCount() == 0) {
+                    JOptionPane.showMessageDialog(this, "검색 결과가 없습니다."); // 검색 결과가 없을 경우 메시지
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "주차 정보를 검색하는 데 실패했습니다."); // 오류 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
         }
     }
+
 
     private void applyFilter() {
         JCheckBox[] checkBoxes = new JCheckBox[columnNames.length];

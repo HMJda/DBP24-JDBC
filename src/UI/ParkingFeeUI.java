@@ -57,7 +57,6 @@ public class ParkingFeeUI extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(15);
-        addPlaceholder(searchField, "검색");
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");

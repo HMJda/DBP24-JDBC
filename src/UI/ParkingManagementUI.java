@@ -1,24 +1,19 @@
 package UI;
 
+import DB.DB_Conn; // DB 연결을 위한 클래스
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ParkingManagementUI extends JPanel {
 
     private DefaultTableModel tableModel;
     private JTable inspectionTable;
-    private String[] columnNames = {"주차장 ID", "주차장 위치", "최대 이용자 수", "점검 등급", "점검 여부"};
-    private Object[][] data = {
-            {"FIG-123", "A주차장", "50", "High", "Y"},
-            {"FIG-122", "B주차장", "30", "Low", "N"},
-            {"FIG-121", "C주차장", "20", "High", "Y"},
-            {"FIG-120", "D주차장", "40", "Low", "Y"}
-    };
+    private String[] columnNames = {"주차장 ID", "관리자ID", "점검일시"};
 
     public ParkingManagementUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -32,7 +27,7 @@ public class ParkingManagementUI extends JPanel {
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
         // 테이블 생성
-        tableModel = new DefaultTableModel(data, columnNames);
+        tableModel = new DefaultTableModel(columnNames, 0);
         inspectionTable = new JTable(tableModel);
         inspectionTable.setRowHeight(30);
         inspectionTable.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
@@ -44,6 +39,9 @@ public class ParkingManagementUI extends JPanel {
         contentPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         add(contentPanel, BorderLayout.CENTER);
+
+        // 회원 데이터 로드
+        loadInspectionData();
     }
 
     private JPanel createHeaderPanel(JPanel mainPanel) {
@@ -59,15 +57,11 @@ public class ParkingManagementUI extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(15);
-        addPlaceholder(searchField, "검색");
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");
+        searchButton.addActionListener(e -> searchInspectionData(searchField.getText()));
         searchPanel.add(searchButton);
-
-        JButton filterButton = createStyledButton("Filter");
-        filterButton.addActionListener(e -> applyFilter());
-        searchPanel.add(filterButton);
 
         headerPanel.add(searchPanel, BorderLayout.EAST);
         return headerPanel;
@@ -81,57 +75,84 @@ public class ParkingManagementUI extends JPanel {
         return button;
     }
 
-    private void addPlaceholder(JTextField textField, String placeholder) {
-        textField.setText(placeholder);
-        textField.setForeground(Color.GRAY);
-        textField.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
-                }
+    private void loadInspectionData() {
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
+
+        String query = "SELECT 관리.주차장ID, 관리.관리자ID, 관리.점검일시 " +
+                "FROM 관리"; // 데이터 조회 쿼리
+
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // 테이블 초기화
+            tableModel.setRowCount(0); // 기존 데이터 초기화
+
+            // 결과 집합을 테이블 모델에 추가
+            while (rs.next()) {
+                String parkingId = rs.getString("주차장ID");
+                String managerId = rs.getString("관리자ID");
+                String inspectionDate = rs.getString("점검일시");
+
+                tableModel.addRow(new Object[]{parkingId, managerId, inspectionDate}); // 새로운 행 추가
             }
 
-            public void focusLost(FocusEvent e) {
-                if (textField.getText().isEmpty()) {
-                    textField.setText(placeholder);
-                    textField.setForeground(Color.GRAY);
-                }
+            if (tableModel.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "주차장 점검 정보가 없습니다."); // 데이터가 없을 경우 메시지
             }
-        });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "주차장 점검 정보를 로드하는 데 실패했습니다."); // 오류 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
+        }
     }
 
-    private void applyFilter() {
-        JCheckBox[] checkBoxes = new JCheckBox[columnNames.length];
-        JPanel filterPanel = new JPanel(new GridLayout(columnNames.length, 1));
-
-        for (int i = 0; i < columnNames.length; i++) {
-            checkBoxes[i] = new JCheckBox(columnNames[i], true);
-            filterPanel.add(checkBoxes[i]);
+    private void searchInspectionData(String query) {
+        if (query.trim().isEmpty()) {
+            // 검색어가 비어 있을 경우 모든 데이터를 로드
+            loadInspectionData();
+            return;
         }
 
-        int result = JOptionPane.showConfirmDialog(this, filterPanel, "필터 선택", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            ArrayList<Integer> selectedColumns = new ArrayList<>();
-            for (int i = 0; i < checkBoxes.length; i++) {
-                if (checkBoxes[i].isSelected()) {
-                    selectedColumns.add(i);
-                }
-            }
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
 
-            DefaultTableModel newModel = new DefaultTableModel();
-            for (int colIndex : selectedColumns) {
-                newModel.addColumn(columnNames[colIndex]);
-            }
+        String sqlQuery = "SELECT 관리.주차장ID, 관리.관리자ID, 관리.점검일시 " +
+                "FROM 관리 " +
+                "WHERE 관리.주차장ID = ? OR 관리.관리자ID = ?"; // 검색 쿼리
 
-            for (Object[] row : data) {
-                Object[] filteredRow = new Object[selectedColumns.size()];
-                for (int i = 0; i < selectedColumns.size(); i++) {
-                    filteredRow[i] = row[selectedColumns.get(i)];
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            pstmt.setString(1, query); // 주차장 ID 조건
+            pstmt.setString(2, query); // 관리자 ID 조건
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                // 테이블 초기화
+                tableModel.setRowCount(0); // 기존 데이터 초기화
+
+                // 결과 집합을 테이블 모델에 추가
+                while (rs.next()) {
+                    String parkingId = rs.getString("주차장ID");
+                    String managerId = rs.getString("관리자ID");
+                    String inspectionDate = rs.getString("점검일시");
+
+                    tableModel.addRow(new Object[]{parkingId, managerId, inspectionDate}); // 새로운 행 추가
                 }
-                newModel.addRow(filteredRow);
+
+                if (tableModel.getRowCount() == 0) {
+                    JOptionPane.showMessageDialog(this, "검색 결과가 없습니다."); // 검색 결과가 없을 경우 메시지
+                }
+
             }
-            inspectionTable.setModel(newModel);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "주차장 점검 정보를 검색하는 데 실패했습니다."); // 오류 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
         }
     }
 }
