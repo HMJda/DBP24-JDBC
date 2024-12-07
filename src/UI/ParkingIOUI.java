@@ -14,8 +14,11 @@ public class ParkingIOUI extends JPanel {
     private JTextField carNumberField; // 차량번호 입력 필드
     private JTextField parkingIdField; // 주차장ID 입력 필드
     private JTextField spaceNumberField; // 공간번호 입력 필드
+    private JTextField exitCarNumberField; // 출차 차량번호 입력 필드
+    private JPanel mainPanel; // 메인 패널을 멤버 변수로 선언
 
-    public ParkingIOUI() {
+    public ParkingIOUI(JPanel mainPanel) {
+        this.mainPanel = mainPanel; // 메인 패널을 받아오기
         setLayout(null); // null 레이아웃 사용
         setBounds(0, 0, 1000, 600); // 패널 크기 설정
         setBackground(Color.WHITE); // 배경색을 흰색으로 설정
@@ -43,9 +46,9 @@ public class ParkingIOUI extends JPanel {
         styleButton(entryButton);
         styleButton(exitButton);
 
-        // 버튼 위치 설정 (간격을 늘림)
-        entryButton.setBounds(80, 40, 150, 30); // y 좌표를 30에서 40으로 변경하여 간격 증가
-        exitButton.setBounds(250, 40, 150, 30); // 동일하게 설정
+        // 버튼 위치 설정
+        entryButton.setBounds(80, 40, 150, 30); // 입차 버튼
+        exitButton.setBounds(250, 40, 150, 30); // 출차 버튼
 
         titlePanel.add(entryButton);
         titlePanel.add(exitButton);
@@ -108,15 +111,29 @@ public class ParkingIOUI extends JPanel {
         submitButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
         submitButton.setBackground(Color.BLACK);
         submitButton.setForeground(Color.WHITE);
-        submitButton.setBounds(180, 200, 100, 30); // 위치 고정
+        submitButton.setBounds(120, 200, 100, 30); // 위치 조정
         entryPanel.add(submitButton);
+
+        // 입차현황 버튼 추가 (위치 조정)
+        JButton statusButton = new JButton("입차현황");
+        statusButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
+        statusButton.setBackground(Color.BLACK);
+        statusButton.setForeground(Color.WHITE);
+        statusButton.setBounds(230, 200, 120, 30); // 기입 버튼 옆에 위치
+        entryPanel.add(statusButton);
 
         // 기입 버튼 클릭 이벤트 설정
         submitButton.addActionListener(e -> insertCarEntry());
 
+        // 입차현황 버튼 클릭 이벤트 설정
+        statusButton.addActionListener(e -> {
+            CardLayout cardLayout = (CardLayout) mainPanel.getLayout(); // 메인 패널의 CardLayout 가져오기
+            cardLayout.show(mainPanel, "CarInUI"); // CarInUI로 전환
+        });
+
         // 기존 패널 제거 후 새 패널 추가
         removeAll();
-        add(titlePanel); // titlePanel 추가
+        add(titlePanel); // 타이틀 패널 추가
         add(entryPanel);
         revalidate();
         repaint();
@@ -175,7 +192,7 @@ public class ParkingIOUI extends JPanel {
         JLabel carNumberLabel = new JLabel("차량번호:");
         carNumberLabel.setBounds(20, 70, 100, 25);
         exitPanel.add(carNumberLabel);
-        JTextField exitCarNumberField = new JTextField(); // 출차 차량번호 입력 필드
+        exitCarNumberField = new JTextField(); // 출차 차량번호 입력 필드
         exitPanel.add(exitCarNumberField).setBounds(120, 70, 300, 25);
 
         // "기입" 버튼 추가 (위치 고정)
@@ -183,14 +200,47 @@ public class ParkingIOUI extends JPanel {
         submitButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
         submitButton.setBackground(Color.BLACK);
         submitButton.setForeground(Color.WHITE);
-        submitButton.setBounds(180, 200, 100, 30); // 입차 패널과 동일한 위치
+        submitButton.setBounds(180, 200, 100, 30); // 위치 조정
         exitPanel.add(submitButton);
+
+        // 기입 버튼 클릭 이벤트 설정
+        submitButton.addActionListener(e -> processCarExit(exitCarNumberField.getText()));
 
         // 기존 패널 제거 후 새 패널 추가
         removeAll();
-        add(titlePanel); // titlePanel 추가
-        add(exitPanel);
+        add(titlePanel); // 타이틀 패널 추가
+        add(exitPanel); // 출차 패널 추가
         revalidate();
         repaint();
+    }
+
+    private void processCarExit(String carNumber) {
+        // DB 연결 및 데이터 삭제
+        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+        dbConn.DB_Connect(); // 데이터베이스 연결
+
+        String query = "DELETE FROM 주차 WHERE 차량번호 = ?";
+
+        try (Connection conn = dbConn.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, carNumber);
+            int rowsAffected = pstmt.executeUpdate(); // 데이터 삭제 실행
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "출차 정보가 기입되었습니다."); // 성공 메시지
+            } else {
+                JOptionPane.showMessageDialog(this, "해당 차량번호가 존재하지 않습니다."); // 차량번호 미존재 메시지
+            }
+
+            // 출차 차량번호 입력 필드 초기화
+            exitCarNumberField.setText("");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "출차 정보 기입에 실패했습니다."); // 실패 메시지
+        } finally {
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
+        }
     }
 }

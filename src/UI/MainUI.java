@@ -25,8 +25,12 @@ public class MainUI {
         mainPanel.setBackground(Color.WHITE); // 메인 패널 배경 색상도 흰색으로 설정
 
         // 각 UI 패널 생성 후 메인 패널에 추가
-        ParkingIOUI parkingIOUI = new ParkingIOUI(); // 차량 입차/출차 UI
+        ParkingIOUI parkingIOUI = new ParkingIOUI(mainPanel); // 차량 입차/출차 UI
         mainPanel.add(parkingIOUI, "ParkingIOUI");
+
+        // CarInUI 추가
+        CarInUI carInUI = new CarInUI(mainPanel); // 입차 현황 UI
+        mainPanel.add(carInUI, "CarInUI");
 
         ManagementUI managementUI = new ManagementUI(mainPanel); // 회원 정보 UI
         mainPanel.add(managementUI, "ManagementUI");
@@ -145,4 +149,3 @@ public class MainUI {
         new MainUI("defaultUserId"); // 기본 사용자 ID로 MainUI 실행 (예시)
     }
 }
-
