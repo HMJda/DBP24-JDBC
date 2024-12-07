@@ -101,7 +101,7 @@ public class CarDAO {
     }
     /** 총이용시간 검색 */
     public List<Object[]> getCarUsage(boolean registedMember,String selectSort) throws SQLException {
-        return getCarUsage(false,"", selectSort);
+        return getCarUsage(registedMember,"", selectSort);
     }
     public List<Object[]> getCarUsage(boolean registedMember,String carName, String selectSort) throws SQLException {
         List<Object[]> resultList = new ArrayList<>();
