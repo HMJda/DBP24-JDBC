@@ -55,6 +55,10 @@ public class MainUI {
         VehicleWarningUI vehicleWarningUI = new VehicleWarningUI(mainPanel, userId); // 차량 경고 등록 UI
         mainPanel.add(vehicleWarningUI, "VehicleWarningUI");
 
+        // 차량 이용 시간 검색 UI 추가
+        CarUsageUI carUsageUI = new CarUsageUI(mainPanel); // 차량 이용 시간 검색 UI
+        mainPanel.add(carUsageUI, "CarUsageUI");
+
         // 왼쪽 메뉴 패널 생성
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
@@ -70,13 +74,14 @@ public class MainUI {
 
         // 메뉴 항목 정의
         String[] menuItems = {
-                "차량 입차/출차", // 맨 위로 이동
+                "차량 입차/출차",
                 "회원 정보",
                 "주차장 관리 점검 기록",
                 "주차요금 계산",
                 "차량 입출차 기록",
                 "주차장 현황",
-                "차량 경고 등록" // 차량 경고 등록 추가
+                "차량 경고 등록",
+                "차량 이용 시간 검색" // 차량 이용 시간 검색 추가
         };
 
         // 각 메뉴 항목에 대해 버튼을 생성
@@ -126,6 +131,9 @@ public class MainUI {
                     case "차량 경고 등록":
                         cardLayout.show(mainPanel, "VehicleWarningUI");
                         break;
+                    case "차량 이용 시간 검색":
+                        cardLayout.show(mainPanel, "CarUsageUI"); // 차량 이용 시간 검색 UI 표시
+                        break;
                 }
             });
 
@@ -143,9 +151,5 @@ public class MainUI {
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new MainUI("defaultUserId"); // 기본 사용자 ID로 MainUI 실행 (예시)
     }
 }

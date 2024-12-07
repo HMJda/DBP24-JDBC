@@ -96,8 +96,6 @@ public class CarDAO {
                 "SELECT " +
                         "    주차.차량번호, " +
                         member +
-                        "    주차.경고누적수, "+
-                        "    주차.불이익단계, "+
                         "    SUM(NVL(주차.출차일시, SYSDATE) - 주차.입차일시) AS 총이용시간 " +
                         "FROM " +
                         "    주차 " +
@@ -106,8 +104,6 @@ public class CarDAO {
                         memberJoin +
                         "GROUP BY " +
                         member +
-                        "    주차.경고누적수, "+
-                        "    주차.불이익단계, "+
                         "    주차.차량번호 " +
                         "ORDER BY " +
                         "    총이용시간 " + selectSort; //DESC, ASC
