@@ -22,12 +22,12 @@ public class CarDAO {
         String insertCarQuery = "INSERT INTO 차량 (차량번호) VALUES (?)";
 
         String checkSpaceQuery =
-                "SELECT COUNT(*) FROM 주차 " +
+                  "SELECT COUNT(*) FROM 주차 " +
                         "WHERE 공간번호 = ? AND 주차장ID = ? AND 출차일시 IS NULL";
 
         String insertParkingQuery =
                 "INSERT INTO 주차 (차량번호, 공간번호, 주차장ID) " +
-                        "VALUES (?, ?, ?,)";
+                        "VALUES (?, ?, ?)";
 
         try (Connection conn = dbConn.getConnection()) {
             conn.setAutoCommit(false); // 트랜잭션 시작
