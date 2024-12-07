@@ -126,18 +126,24 @@ public class ParkingIOUI extends JPanel {
 
         // 기입 버튼 클릭 이벤트 설정
         submitButton.addActionListener(e -> {
-            try {
-                CarDAO carDAO = new CarDAO();
-                String message = carDAO.insertCarParking(
-                        carNumberField.getText(),
-                        spaceNumberField.getText(),
-                        parkingIdField.getText()
-                );
-                JOptionPane.showMessageDialog(this, message);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "차량입차에 실패했습니다: " + ex.getMessage());
+            if (!carNumberField.getText().isEmpty()
+                    && !spaceNumberField.getText().isEmpty() && !parkingIdField.getText().isEmpty()) {
+                try {
+                    CarDAO carDAO = new CarDAO();
+                    String message = carDAO.insertCarParking(
+                            carNumberField.getText(),
+                            spaceNumberField.getText(),
+                            parkingIdField.getText()
+                    );
+                    JOptionPane.showMessageDialog(this, message);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "차량입차에 실패했습니다: " + ex.getMessage());
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.");
             }
+
 
         });
 
@@ -156,40 +162,6 @@ public class ParkingIOUI extends JPanel {
 
         // 입차 버튼을 밝은 회색으로 설정
         entryButton.setBackground(Color.LIGHT_GRAY); // 입차 버튼을 밝은 회색으로 설정
-    }
-
-    private void insertCarEntry() {
-        String carNumber = carNumberField.getText();
-        String parkingId = parkingIdField.getText();
-        String spaceNumber = spaceNumberField.getText();
-
-        // DB 연결 및 데이터 삽입
-        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
-        dbConn.DB_Connect(); // 데이터베이스 연결
-
-        String query = "INSERT INTO 주차 (차량번호, 공간번호, 주차장ID, 입차일시) VALUES (?, ?, ?, SYSDATE)";
-
-        try (Connection conn = dbConn.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, carNumber);
-            pstmt.setString(2, spaceNumber);
-            pstmt.setString(3, parkingId);
-            pstmt.executeUpdate(); // 데이터 삽입 실행
-
-            JOptionPane.showMessageDialog(this, "입차 정보가 기입되었습니다."); // 성공 메시지
-
-            // 입력 필드 초기화
-            carNumberField.setText("");
-            parkingIdField.setText("");
-            spaceNumberField.setText("");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "입차 정보 기입에 실패했습니다."); // 실패 메시지
-        } finally {
-            dbConn.closeConnection(); // 데이터베이스 연결 종료
-        }
     }
 
     private void showExitPanel() {
@@ -221,15 +193,19 @@ public class ParkingIOUI extends JPanel {
 
         // 기입 버튼 클릭 이벤트 설정
         submitButton.addActionListener(e -> {
-            try{
-                CarDAO carDAO = new CarDAO();
-                String message = carDAO.updateCarParking(
-                        exitCarNumberField.getText()
-                );
-                JOptionPane.showMessageDialog(this, message);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "차량출차에 실패했습니다: " + ex.getMessage());
+            if (!exitCarNumberField.getText().isEmpty()) {
+                try{
+                    CarDAO carDAO = new CarDAO();
+                    String message = carDAO.updateCarParking(
+                            exitCarNumberField.getText()
+                    );
+                    JOptionPane.showMessageDialog(this, message);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "차량출차에 실패했습니다: " + ex.getMessage());
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "차량번호를 입력하세요.");
             }
         });
 
@@ -240,34 +216,4 @@ public class ParkingIOUI extends JPanel {
         revalidate();
         repaint();
     }
-
-//    private void processCarExit(String carNumber) {
-//        // DB 연결 및 데이터 삭제
-//        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
-//        dbConn.DB_Connect(); // 데이터베이스 연결
-//
-//        String query = "DELETE FROM 주차 WHERE 차량번호 = ?";
-//
-//        try (Connection conn = dbConn.getConnection();
-//             PreparedStatement pstmt = conn.prepareStatement(query)) {
-//
-//            pstmt.setString(1, carNumber);
-//            int rowsAffected = pstmt.executeUpdate(); // 데이터 삭제 실행
-//
-//            if (rowsAffected > 0) {
-//                JOptionPane.showMessageDialog(this, "출차 정보가 기입되었습니다."); // 성공 메시지
-//            } else {
-//                JOptionPane.showMessageDialog(this, "해당 차량번호가 존재하지 않습니다."); // 차량번호 미존재 메시지
-//            }
-//
-//            // 출차 차량번호 입력 필드 초기화
-//            exitCarNumberField.setText("");
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "출차 정보 기입에 실패했습니다."); // 실패 메시지
-//        } finally {
-//            dbConn.closeConnection(); // 데이터베이스 연결 종료
-//        }
-//    }
 }
