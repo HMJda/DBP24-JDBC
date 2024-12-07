@@ -29,9 +29,8 @@ public class CarWarningDAO {
             ex.printStackTrace();
             resultMessage = "경고 등록에 실패했습니다.";
             return resultMessage;
-        }finally {
-            dbConn.closeConnection(); // 데이터베이스 연결 종료
         }
+        dbConn.closeConnection(); // 데이터베이스 연결 종료
         return resultMessage;
     }
 }

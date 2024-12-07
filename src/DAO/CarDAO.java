@@ -74,10 +74,8 @@ public class CarDAO {
         } catch (SQLException e) {
             resultMessage = "주차 삽입 중 오류가 발생했습니다: " + e.getMessage();
             e.printStackTrace();
-        } finally {
-            dbConn.closeConnection();
         }
-
+        dbConn.closeConnection(); // 데이터베이스 연결 종료
         return resultMessage;
     }
     /** 총이용시간 검색 */
@@ -138,9 +136,8 @@ public class CarDAO {
             }
         } catch (SQLException e) {
             throw new SQLException("데이터 조회 중 오류 발생: " + e.getMessage(), e);
-        } finally {
-            dbConn.closeConnection();
         }
+        dbConn.closeConnection(); // 데이터베이스 연결 종료
         return resultList;
     }
 }

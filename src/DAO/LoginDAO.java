@@ -21,12 +21,13 @@ public class LoginDAO {
             cstmt.execute(); // 프로시저 실행
 
             String isValid = cstmt.getString(3); // 유효성 결과 가져오기
+
+            dbConn.closeConnection(); // 데이터베이스 연결 종료
             return "Y".equals(isValid); // 유효한 경우 true 반환
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; // 예외 발생 시 false 반환
-        } finally {
             dbConn.closeConnection(); // 데이터베이스 연결 종료
+            return false; // 예외 발생 시 false 반환
         }
     }
 }

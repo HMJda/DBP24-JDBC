@@ -28,9 +28,8 @@ public class MemberDAO {
             stmt.execute();
 
             resultMessage = stmt.getString(9);
-        } finally {
-            dbConn.closeConnection(); // DB 연결 종료
         }
+        dbConn.closeConnection(); // DB 연결 종료
         return resultMessage;
     }
 //    public Vector<Vector> allMember() throws SQLException {
