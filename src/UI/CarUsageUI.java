@@ -41,10 +41,7 @@ public class CarUsageUI extends JPanel {
         // 검색 버튼 추가
         JButton searchButton = createStyledButton("검색");
         searchButton.addActionListener(e -> {
-            // 검색 버튼 클릭 시 실행할 코드
-            String searchText = searchField.getText().trim();
-            System.out.println("검색 기준: " + searchText);
-            // 여기에 검색 로직 추가
+            updateTableData();
         });
         searchPanel.add(searchButton);
 
@@ -70,7 +67,6 @@ public class CarUsageUI extends JPanel {
                     tableModel = new DefaultTableModel(columnNames, 0);
                     usageTable.setModel(tableModel);
                     updateTableData();
-
                 }
             }
         });
@@ -113,13 +109,24 @@ public class CarUsageUI extends JPanel {
     private void updateTableData() {
         tableModel.setRowCount(0);
         CarDAO carDAO = new CarDAO();
-        try {
-            List<Object[]> dataList = carDAO.getCarUsage(isSelected,sort); // 현재 sort 값을 기반으로 데이터를 가져옴
-            for (Object[] row : dataList) {
-                tableModel.addRow(row);
+        if ( !searchField.getText().isEmpty() ) {
+            try {
+                List<Object[]> dataList = carDAO.getCarUsage(isSelected,searchField.getText(),sort); // 현재 sort 값을 기반으로 데이터를 가져옴
+                for (Object[] row : dataList) {
+                    tableModel.addRow(row);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } else {
+            try {
+                List<Object[]> dataList = carDAO.getCarUsage(isSelected,sort); // 현재 sort 값을 기반으로 데이터를 가져옴
+                for (Object[] row : dataList) {
+                    tableModel.addRow(row);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

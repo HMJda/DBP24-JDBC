@@ -1,15 +1,11 @@
 package DAO;
 
 import DB.DB_Conn;
-import DTO.CarDTO;
-import DTO.MemberDTO;
 
-import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,19 +100,23 @@ public class CarDAO {
         return resultMessage;
     }
     /** 총이용시간 검색 */
-//    public List<Object[]> getCarUsage(String selectSort) throws SQLException {
-//        return getCarUsage(false, selectSort); // 조건 없는 기본 쿼리 실행
-//    }
-    public List<Object[]> getCarUsage(boolean registedMember, String selectSort) throws SQLException {
+    public List<Object[]> getCarUsage(boolean registedMember,String selectSort) throws SQLException {
+        return getCarUsage(false,"", selectSort);
+    }
+    public List<Object[]> getCarUsage(boolean registedMember,String carName, String selectSort) throws SQLException {
         List<Object[]> resultList = new ArrayList<>();
         String member = "";
         String memberJoin ="";
+        String where = "";
         if (registedMember) {
             member = "    등록이용객.이름, ";
             memberJoin = "JOIN " +
                     "    등록이용객 ON 차량.회원ID = 등록이용객.회원ID " ;
         }
-
+        if (!carName.isEmpty()){
+            where = "WHERE " +
+                    "주차.차량번호 like '%" + carName + "%' ";
+        }
         String query =
                 "SELECT " +
                         "    주차.차량번호, " +
@@ -129,6 +129,7 @@ public class CarDAO {
                         "JOIN " +
                         "    차량 ON 주차.차량번호 = 차량.차량번호 " +
                         memberJoin +
+                        where +
                         "GROUP BY " +
                         member +
                         "    차량.경고누적수, "+
