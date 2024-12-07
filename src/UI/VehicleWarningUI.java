@@ -2,12 +2,11 @@ package UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
-import DAO.MemberDAO;
 import DTO.CarWarningDTO;
 import DAO.CarWarningDAO;
-
-import static java.time.LocalTime.now;
 
 public class VehicleWarningUI extends JPanel {
 
@@ -56,19 +55,21 @@ public class VehicleWarningUI extends JPanel {
         registerButton.addActionListener(e -> {
             try {
                 CarWarningDTO carWarningDTO = new CarWarningDTO();
-                //carWarningDTO.setWarningId(); //경고ID로 쓸만한거 추천받습니다.
+                LocalDateTime now = LocalDateTime.now();
+                LocalTime timeNow  = LocalTime.now();
+                carWarningDTO.setWarningId(userId+timeNow);
                 carWarningDTO.setAdminId(userId);
                 carWarningDTO.setCarNumber(vehicleIdField.getText());
-                //carWarningDTO.setWarningTimestamp(now()); //흠..
+                carWarningDTO.setWarningTimestamp(java.sql.Timestamp.valueOf(now));
                 carWarningDTO.setWarningReason(warningReasonField.getText());
 
 
                 CarWarningDAO carWarningDAO = new CarWarningDAO();
                 String message = carWarningDAO.registerWarning(carWarningDTO);
 
-//                JOptionPane.showMessageDialog(this, message);
+                JOptionPane.showMessageDialog(this, message);
             } catch (Exception ex) {
-//                JOptionPane.showMessageDialog(this, "회원 등록에 실패했습니다: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "경고 등록에 실패했습니다.");
             }
 //            String vehicleId = vehicleIdField.getText();
 //            String warningReason = warningReasonField.getText();
