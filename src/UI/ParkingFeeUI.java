@@ -1,134 +1,68 @@
 package UI;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import DAO.ParkingFeeDAO;
 
 public class ParkingFeeUI extends JPanel {
 
-    private DefaultTableModel tableModel;
-    private JTable feeTable;
-    private String[] columnNames = {"회원ID", "차량번호", "입차시간", "출차시간", "요금"};
-    private Object[][] data = {
-            {"A001", "35가 3872", "09:24", "17:00", "10000"},
-            {"A002", "12나 1234", "10:30", "19:15", "8000"},
-            {"A003", "56다 4567", "11:00", "20:45", "12000"}
-    };
+    private JLabel resultLabel;
 
     public ParkingFeeUI(JPanel mainPanel) {
-        setLayout(new BorderLayout());
+        setLayout(null);
+        setBackground(Color.WHITE);
 
-        // 콘텐츠 영역
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(Color.WHITE);
-
-        // 헤더
-        JPanel headerPanel = createHeaderPanel(mainPanel);
-        contentPanel.add(headerPanel, BorderLayout.NORTH);
-
-        // 테이블 생성
-        tableModel = new DefaultTableModel(data, columnNames);
-        feeTable = new JTable(tableModel);
-        feeTable.setRowHeight(30);
-        feeTable.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
-        feeTable.getTableHeader().setFont(new Font("Malgun Gothic", Font.BOLD, 14));
-        feeTable.getTableHeader().setReorderingAllowed(false);
-
-        JScrollPane tableScrollPane = new JScrollPane(feeTable);
-        tableScrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPanel.add(tableScrollPane, BorderLayout.CENTER);
-
-        add(contentPanel, BorderLayout.CENTER);
-    }
-
-    private JPanel createHeaderPanel(JPanel mainPanel) {
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(Color.WHITE);
-
-        JLabel titleLabel = new JLabel("주차 요금 계산", JLabel.LEFT);
+        JLabel titleLabel = new JLabel("주차요금계산");
         titleLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 16));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        headerPanel.add(titleLabel, BorderLayout.WEST);
+        titleLabel.setBounds(20, 10, 200, 30);
+        add(titleLabel);
 
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        searchPanel.setBackground(Color.WHITE);
+        JLabel inputLabel = new JLabel("차량번호 입력 : ");
+        inputLabel.setFont(new Font("Malgun Gothic", Font.PLAIN, 17));
+        inputLabel.setBounds(50, 80, 130, 30);
+        add(inputLabel);
 
-        JTextField searchField = new JTextField(15);
-        searchPanel.add(searchField);
+        JTextField inputField = new JTextField();
+        inputField.setBounds(180, 80, 190, 30);
+        inputField.setBackground(Color.WHITE);
+        inputField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        add(inputField);
 
-        JButton searchButton = createStyledButton("검색");
-        searchPanel.add(searchButton);
+        JButton calculateButton = new JButton("요금 계산");
+        calculateButton.setBounds(380, 80, 100, 30);
+        calculateButton.setBackground(Color.BLACK);
+        calculateButton.setForeground(Color.WHITE);
+        calculateButton.setFocusPainted(false);
+        add(calculateButton);
 
-        JButton filterButton = createStyledButton("Filter");
-        filterButton.addActionListener(e -> applyFilter());
-        searchPanel.add(filterButton);
+        resultLabel = new JLabel("");
+        resultLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 20));
+        resultLabel.setBounds(50, 150, 400, 30);
+        add(resultLabel);
 
-        headerPanel.add(searchPanel, BorderLayout.EAST);
-        return headerPanel;
-    }
-
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBackground(Color.BLACK);
-        button.setForeground(Color.WHITE);
-        return button;
-    }
-
-    private void addPlaceholder(JTextField textField, String placeholder) {
-        textField.setText(placeholder);
-        textField.setForeground(Color.GRAY);
-        textField.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
-                }
-            }
-
-            public void focusLost(FocusEvent e) {
-                if (textField.getText().isEmpty()) {
-                    textField.setText(placeholder);
-                    textField.setForeground(Color.GRAY);
+        calculateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String carNumber = inputField.getText().trim();
+                if (!carNumber.isEmpty()) {
+                    calculateFee(carNumber);
+                } else {
+                    resultLabel.setText("차량번호를 입력하세요.");
                 }
             }
         });
     }
 
-    private void applyFilter() {
-        JCheckBox[] checkBoxes = new JCheckBox[columnNames.length];
-        JPanel filterPanel = new JPanel(new GridLayout(columnNames.length, 1));
+    private void calculateFee(String carNumber) {
+        ParkingFeeDAO dao = new ParkingFeeDAO();
+        String resultMessage = dao.calculateFeeWithMemberInfo(carNumber); // 변경된 DAO 메서드 호출
 
-        for (int i = 0; i < columnNames.length; i++) {
-            checkBoxes[i] = new JCheckBox(columnNames[i], true);
-            filterPanel.add(checkBoxes[i]);
-        }
-
-        int result = JOptionPane.showConfirmDialog(this, filterPanel, "필터 선택", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            ArrayList<Integer> selectedColumns = new ArrayList<>();
-            for (int i = 0; i < checkBoxes.length; i++) {
-                if (checkBoxes[i].isSelected()) {
-                    selectedColumns.add(i);
-                }
-            }
-
-            DefaultTableModel newModel = new DefaultTableModel();
-            for (int colIndex : selectedColumns) {
-                newModel.addColumn(columnNames[colIndex]);
-            }
-
-            for (Object[] row : data) {
-                Object[] filteredRow = new Object[selectedColumns.size()];
-                for (int i = 0; i < selectedColumns.size(); i++) {
-                    filteredRow[i] = row[selectedColumns.get(i)];
-                }
-                newModel.addRow(filteredRow);
-            }
-            feeTable.setModel(newModel);
+        if (resultMessage != null) {
+            resultLabel.setText(resultMessage);
+        } else {
+            resultLabel.setText("요금을 계산할 수 없습니다.");
         }
     }
 }
