@@ -83,7 +83,7 @@ public class Login {
 
         // 로그인 버튼 클릭 시 동작, DB 연결
         signInButton.addActionListener(e -> {
-            String userId = idField.getText();
+            String userId = idField.getText().trim();
             String password = new String(passwordField.getPassword());
             LoginDAO loginDAO = new LoginDAO();
             if (loginDAO.authenticate(userId, password)) { // 인증 성공
