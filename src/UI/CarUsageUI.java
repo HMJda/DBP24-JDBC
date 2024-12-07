@@ -5,6 +5,8 @@ import DAO.CarDAO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.SQLException;
@@ -36,7 +38,31 @@ public class CarUsageUI extends JPanel {
 
         // 검색 필드 추가
         searchField = new JTextField(10);
+        searchField.setText("차량번호");  // 기본 텍스트(플레이스홀더)
+
+        // 플레이스홀더 효과
+        searchField.setForeground(Color.GRAY);  // 기본 텍스트 회색
+
+        // 포커스 이벤트 처리
+        searchField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (searchField.getText().equals("차량번호")) {
+                    searchField.setText("");  // 포커스가 가면 텍스트를 지운다
+                    searchField.setForeground(Color.BLACK);  // 글자 색을 검정으로 바꿈
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (searchField.getText().isEmpty()) {
+                    searchField.setText("차량번호");  // 포커스를 잃으면 기본 텍스트로 되돌린다
+                    searchField.setForeground(Color.GRAY);  // 회색으로 다시 바꿈
+                }
+            }
+        });
         searchPanel.add(searchField);
+
 
         // 검색 버튼 추가
         JButton searchButton = createStyledButton("검색");
@@ -71,6 +97,7 @@ public class CarUsageUI extends JPanel {
             }
         });
 
+        //정렬 버튼 추가
         JButton sortButton = createStyledButton("내림차순");
         sortButton.addActionListener(e -> {
             if (sortButton.getText().equals("오름차순")) {
@@ -109,7 +136,7 @@ public class CarUsageUI extends JPanel {
     private void updateTableData() {
         tableModel.setRowCount(0);
         CarDAO carDAO = new CarDAO();
-        if ( !searchField.getText().isEmpty() ) {
+        if ( !searchField.getText().isEmpty() && !searchField.getText().equals("차량번호")) {
             try {
                 List<Object[]> dataList = carDAO.getCarUsage(isSelected,searchField.getText(),sort); // 현재 sort 값을 기반으로 데이터를 가져옴
                 for (Object[] row : dataList) {
