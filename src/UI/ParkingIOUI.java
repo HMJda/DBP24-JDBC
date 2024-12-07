@@ -1,11 +1,13 @@
 package UI;
 
+
 import DB.DB_Conn; // DB 연결을 위한 클래스
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import DAO.CarDAO;
 
 public class ParkingIOUI extends JPanel {
 
@@ -123,7 +125,21 @@ public class ParkingIOUI extends JPanel {
         entryPanel.add(statusButton);
 
         // 기입 버튼 클릭 이벤트 설정
-        submitButton.addActionListener(e -> insertCarEntry());
+        submitButton.addActionListener(e -> {
+            try {
+                CarDAO carDAO = new CarDAO();
+                String message = carDAO.insertCarParking(
+                        carNumberField.getText(),
+                        spaceNumberField.getText(),
+                        parkingIdField.getText()
+                );
+                JOptionPane.showMessageDialog(this, message);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "차량입차에 실패했습니다: " + ex.getMessage());
+            }
+
+        });
 
         // 입차현황 버튼 클릭 이벤트 설정
         statusButton.addActionListener(e -> {
@@ -204,7 +220,18 @@ public class ParkingIOUI extends JPanel {
         exitPanel.add(submitButton);
 
         // 기입 버튼 클릭 이벤트 설정
-        submitButton.addActionListener(e -> processCarExit(exitCarNumberField.getText()));
+        submitButton.addActionListener(e -> {
+            try{
+                CarDAO carDAO = new CarDAO();
+                String message = carDAO.updateCarParking(
+                        exitCarNumberField.getText()
+                );
+                JOptionPane.showMessageDialog(this, message);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "차량출차에 실패했습니다: " + ex.getMessage());
+            }
+        });
 
         // 기존 패널 제거 후 새 패널 추가
         removeAll();
@@ -214,33 +241,33 @@ public class ParkingIOUI extends JPanel {
         repaint();
     }
 
-    private void processCarExit(String carNumber) {
-        // DB 연결 및 데이터 삭제
-        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
-        dbConn.DB_Connect(); // 데이터베이스 연결
-
-        String query = "DELETE FROM 주차 WHERE 차량번호 = ?";
-
-        try (Connection conn = dbConn.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, carNumber);
-            int rowsAffected = pstmt.executeUpdate(); // 데이터 삭제 실행
-
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "출차 정보가 기입되었습니다."); // 성공 메시지
-            } else {
-                JOptionPane.showMessageDialog(this, "해당 차량번호가 존재하지 않습니다."); // 차량번호 미존재 메시지
-            }
-
-            // 출차 차량번호 입력 필드 초기화
-            exitCarNumberField.setText("");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "출차 정보 기입에 실패했습니다."); // 실패 메시지
-        } finally {
-            dbConn.closeConnection(); // 데이터베이스 연결 종료
-        }
-    }
+//    private void processCarExit(String carNumber) {
+//        // DB 연결 및 데이터 삭제
+//        DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
+//        dbConn.DB_Connect(); // 데이터베이스 연결
+//
+//        String query = "DELETE FROM 주차 WHERE 차량번호 = ?";
+//
+//        try (Connection conn = dbConn.getConnection();
+//             PreparedStatement pstmt = conn.prepareStatement(query)) {
+//
+//            pstmt.setString(1, carNumber);
+//            int rowsAffected = pstmt.executeUpdate(); // 데이터 삭제 실행
+//
+//            if (rowsAffected > 0) {
+//                JOptionPane.showMessageDialog(this, "출차 정보가 기입되었습니다."); // 성공 메시지
+//            } else {
+//                JOptionPane.showMessageDialog(this, "해당 차량번호가 존재하지 않습니다."); // 차량번호 미존재 메시지
+//            }
+//
+//            // 출차 차량번호 입력 필드 초기화
+//            exitCarNumberField.setText("");
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            JOptionPane.showMessageDialog(this, "출차 정보 기입에 실패했습니다."); // 실패 메시지
+//        } finally {
+//            dbConn.closeConnection(); // 데이터베이스 연결 종료
+//        }
+//    }
 }
