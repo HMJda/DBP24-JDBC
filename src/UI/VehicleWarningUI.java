@@ -2,12 +2,11 @@ package UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
-import DAO.MemberDAO;
 import DTO.CarWarningDTO;
 import DAO.CarWarningDAO;
-
-import static java.time.LocalTime.now;
 
 public class VehicleWarningUI extends JPanel {
 
@@ -54,51 +53,30 @@ public class VehicleWarningUI extends JPanel {
 
         // 버튼 클릭 이벤트 처리
         registerButton.addActionListener(e -> {
-            try {
-                CarWarningDTO carWarningDTO = new CarWarningDTO();
-                //carWarningDTO.setWarningId(); //경고ID로 쓸만한거 추천받습니다.
-                carWarningDTO.setAdminId(userId);
-                carWarningDTO.setCarNumber(vehicleIdField.getText());
-                //carWarningDTO.setWarningTimestamp(now()); //흠..
-                carWarningDTO.setWarningReason(warningReasonField.getText());
+            //필드가 비어있는지 확인
+            if (!userId.isEmpty() && !vehicleIdField.getText().isEmpty() && !warningReasonField.getText().isEmpty()) {
+                try {
+                    CarWarningDTO carWarningDTO = new CarWarningDTO();
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalTime timeNow  = LocalTime.now();
+                    carWarningDTO.setWarningId(userId+timeNow);
+                    carWarningDTO.setAdminId(userId);
+                    carWarningDTO.setCarNumber(vehicleIdField.getText());
+                    carWarningDTO.setWarningTimestamp(java.sql.Timestamp.valueOf(now));
+                    carWarningDTO.setWarningReason(warningReasonField.getText());
 
 
-                CarWarningDAO carWarningDAO = new CarWarningDAO();
-                String message = carWarningDAO.registerWarning(carWarningDTO);
+                    CarWarningDAO carWarningDAO = new CarWarningDAO();
+                    String message = carWarningDAO.registerWarning(carWarningDTO);
 
-//                JOptionPane.showMessageDialog(this, message);
-            } catch (Exception ex) {
-//                JOptionPane.showMessageDialog(this, "회원 등록에 실패했습니다: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(this, message);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "경고 등록에 실패했습니다.");
+                }
+            }else {
+                JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.");
             }
-//            String vehicleId = vehicleIdField.getText();
-//            String warningReason = warningReasonField.getText();
-//
-//            // 경고 등록 로직
-//            if (!vehicleId.isEmpty() && !warningReason.isEmpty()) {
-//                // 데이터베이스에 경고 등록
-//                registerWarning(userId, vehicleId, warningReason);
-//            } else {
-//                JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.");
-//            }
         });
     }
 
-    private void registerWarning(String userId, String vehicleId, String warningReason) {
-        // 데이터베이스 연결 및 경고 등록 로직
-        String insertQuery = "INSERT INTO warnings (user_id, vehicle_id, warning_reason, warning_time) VALUES (?, ?, ?, NOW())";
-
-//        try (Connection conn = DatabaseConnection.getConnection(); // DB 연결
-//             PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
-//
-//            pstmt.setString(1, userId);
-//            pstmt.setString(2, vehicleId);
-//            pstmt.setString(3, warningReason);
-//            pstmt.executeUpdate();
-//
-//            JOptionPane.showMessageDialog(this, "경고가 등록되었습니다.");
-//        } catch (SQLException ex) {
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "경고 등록에 실패했습니다.");
-//        }
-    }
 }
