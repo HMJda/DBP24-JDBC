@@ -117,7 +117,7 @@ public class ParkingStatusUI extends JPanel {
         dbConn.DB_Connect(); // 데이터베이스 연결
 
         String updateQuery = "UPDATE 동의대주차장 SET 현재주차가능수 = 최대주차가능수 - " +
-                "(SELECT COUNT(*) FROM 주차 WHERE 주차장ID = 동의대주차장.주차장ID)";
+                "(SELECT COUNT(*) FROM 주차 WHERE 주차장ID = 동의대주차장.주차장ID AND 출차일시 IS NOT NULL)";
 
         try (Connection conn = dbConn.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
