@@ -19,6 +19,7 @@ public class CarInUI extends JPanel {
 
     private JTable parkingTable; // 주차 테이블을 표시할 JTable
     private DefaultTableModel tableModel; // 테이블 모델
+    private JTextField searchField;
     private String[] columnNames = {"차량번호", "공간번호", "주차장ID", "입차일시"};
     private String query = "SELECT 차량번호, 공간번호, 주차장ID, 입차일시 FROM 주차";
     private String queryGBOB = " GROUP BY " +
@@ -28,6 +29,11 @@ public class CarInUI extends JPanel {
             "    입차일시 " +
             "ORDER BY " +
             "    입차일시 DESC" ;
+
+    public void initialize() {
+        searchField.setText("");
+        loadParkingData();
+    }
 
     public CarInUI(JPanel mainPanel) {
         setLayout(new BorderLayout()); // 레이아웃 설정
@@ -79,7 +85,7 @@ public class CarInUI extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(15);
+        searchField = new JTextField(15);
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");
@@ -157,15 +163,15 @@ public class CarInUI extends JPanel {
         }
     }
 
-    private void searchParkingData(String query) {
+    private void searchParkingData(String text) {
         DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
         dbConn.DB_Connect(); // 데이터베이스 연결
 
         String sqlQuery = query;
 
         // 입력된 검색어가 비어 있지 않으면 검색 쿼리를 추가
-        if (!query.trim().isEmpty()) {
-            sqlQuery += " WHERE 차량번호 LIKE ?";
+        if (!text.trim().isEmpty()) {
+            sqlQuery += " WHERE 차량번호 LIKE ? ";
         }
         sqlQuery += queryGBOB;
 
@@ -173,8 +179,8 @@ public class CarInUI extends JPanel {
              PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
 
             // 검색어가 있을 경우 차량번호 조건 추가
-            if (!query.trim().isEmpty()) {
-                pstmt.setString(1, "%" + query + "%"); // LIKE 연산자로 부분 일치를 찾기
+            if (!text.trim().isEmpty()) {
+                pstmt.setString(1, "%" + text + "%"); // LIKE 연산자로 부분 일치를 찾기
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {

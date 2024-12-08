@@ -14,7 +14,13 @@ public class ManagementUI extends JPanel {
 
     private JTable userTable; // 회원 정보를 표시할 JTable
     private DefaultTableModel tableModel; // 테이블 모델
+    private JTextField searchField;
     private String[] columnNames = {"회원 ID", "이름", "연락처", "소속", "주소"};
+
+    public void initialize() {
+        searchField.setText("");
+        loadUserData();
+    }
 
     public ManagementUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -37,7 +43,7 @@ public class ManagementUI extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(15);
+        searchField = new JTextField(15);
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");

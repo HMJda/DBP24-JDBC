@@ -13,6 +13,7 @@ public class ParkingManagementUI extends JPanel {
 
     private DefaultTableModel tableModel;
     private JTable inspectionTable;
+    private JTextField searchField;
     private String[] columnNames = {"주차장 ID", "관리자ID", "점검일시"};
     private String query = "SELECT 주차장ID, 관리자ID, 점검일시 FROM 관리 ";
     private String queryGBOB = " GROUP BY " +
@@ -21,6 +22,10 @@ public class ParkingManagementUI extends JPanel {
                                 "    점검일시 " +
                                 "ORDER BY " +
                                 "    점검일시 DESC" ;
+    public void initialize() {
+        searchField.setText("");
+        loadInspectionData();
+    }
 
     public ParkingManagementUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -63,7 +68,7 @@ public class ParkingManagementUI extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(15);
+        searchField = new JTextField(15);
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");

@@ -24,10 +24,6 @@ public class MainUI {
         JPanel mainPanel = new JPanel(new CardLayout());
         mainPanel.setBackground(Color.WHITE); // 메인 패널 배경 색상도 흰색으로 설정
 
-        // 각 UI 패널 생성 후 메인 패널에 추가
-        ParkingIOUI parkingIOUI = new ParkingIOUI(mainPanel); // 차량 입차/출차 UI
-        mainPanel.add(parkingIOUI, "ParkingIOUI");
-
         // CarInUI 추가
         CarInUI carInUI = new CarInUI(mainPanel); // 입차 현황 UI
         mainPanel.add(carInUI, "CarInUI");
@@ -35,6 +31,10 @@ public class MainUI {
         // CarOutUI 추가
         CarOutUI carOutUI = new CarOutUI(mainPanel); // 입차 현황 UI
         mainPanel.add(carOutUI, "CarOutUI");
+
+        // 각 UI 패널 생성 후 메인 패널에 추가
+        ParkingIOUI parkingIOUI = new ParkingIOUI(mainPanel,carInUI,carOutUI); // 차량 입차/출차 UI
+        mainPanel.add(parkingIOUI, "ParkingIOUI");
 
         ManagementUI managementUI = new ManagementUI(mainPanel); // 회원 정보 UI
         mainPanel.add(managementUI, "ManagementUI");
@@ -116,18 +116,22 @@ public class MainUI {
                 switch (item) {
                     case "차량 입차/출차":
                         cardLayout.show(mainPanel, "ParkingIOUI");
+                        parkingIOUI.initialize();
                         break;
                     case "회원 정보":
                         cardLayout.show(mainPanel, "ManagementUI");
+                        managementUI.initialize();
                         break;
                     case "주차장 관리 점검 기록":
                         cardLayout.show(mainPanel, "ParkingManagementUI");
+                        parkingManagementUI.initialize();
                         break;
                     case "주차요금 계산":
                         cardLayout.show(mainPanel, "ParkingFeeUI");
                         break;
                     case "차량 입출차 기록":
                         cardLayout.show(mainPanel, "ParkingRecordUI");
+                        parkingRecordUI.initialize();
                         break;
                     case "주차장 현황":
                         cardLayout.show(mainPanel, "ParkingStatusUI");
@@ -137,6 +141,7 @@ public class MainUI {
                         break;
                     case "차량 이용 시간 검색":
                         cardLayout.show(mainPanel, "CarUsageUI"); // 차량 이용 시간 검색 UI 표시
+                        carUsageUI.initialize();
                         break;
                 }
             });
@@ -152,6 +157,11 @@ public class MainUI {
         // 프레임에 메뉴 패널과 메인 패널 추가
         frame.add(menuPanel, BorderLayout.WEST);
         frame.add(mainPanel, BorderLayout.CENTER);
+
+        // 첫 화면으로 ParkingIOUI 설정
+        CardLayout cardLayout = (CardLayout) mainPanel.getLayout();
+        cardLayout.show(mainPanel, "ParkingIOUI");
+        parkingIOUI.initialize();
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

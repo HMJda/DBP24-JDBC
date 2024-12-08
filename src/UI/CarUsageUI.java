@@ -20,6 +20,12 @@ public class CarUsageUI extends JPanel {
     private String sort = "DESC";
     private boolean isSelected = false;
     private String[] columnNames;
+
+    public void initialize() {
+        searchField.setText("");
+        updateTableData();
+    }
+
     public CarUsageUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);

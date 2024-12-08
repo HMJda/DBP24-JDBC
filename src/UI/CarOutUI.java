@@ -19,6 +19,7 @@ public class CarOutUI extends JPanel {
 
     private JTable parkingTable; // 주차 테이블을 표시할 JTable
     private DefaultTableModel tableModel; // 테이블 모델
+    private JTextField searchField;
     private String[] columnNames = {"차량번호", "공간번호", "주차장ID", "입차일시" , "출차일시"};
     private String query = "SELECT 차량번호, 공간번호, 주차장ID, 입차일시, 출차일시 FROM 주차" +
             " WHERE 출차일시 IS NOT NULL ";
@@ -30,6 +31,11 @@ public class CarOutUI extends JPanel {
                                 "    출차일시 " +
                                 "ORDER BY " +
                                 "    출차일시 DESC" ;
+
+    public void initialize() {
+        searchField.setText("");
+        loadParkingData();
+    }
 
     public CarOutUI(JPanel mainPanel) {
         setLayout(new BorderLayout()); // 레이아웃 설정
@@ -81,7 +87,7 @@ public class CarOutUI extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(15);
+        searchField = new JTextField(15);
         searchPanel.add(searchField);
 
         JButton searchButton = createStyledButton("검색");

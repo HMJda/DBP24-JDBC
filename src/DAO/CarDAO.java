@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CarDAO {
     /** (트랜잭션) 차량 주차 입력 명령어 차량번호, 공간번호, 주차장 ID*/
-    public String insertCarParking(String carNumber, String spaceNumber, String parkingSpaceId) throws SQLException {
+    public String insertCarParking(String carNumber, String spaceNumber, String parkingSpaceId) {
         String resultMessage = "";
         String checkCarQuery = "SELECT COUNT(*) FROM 차량 WHERE 차량번호 = ?";
         String insertCarQuery = "INSERT INTO 차량 (차량번호) VALUES (?)";
@@ -26,7 +26,6 @@ public class CarDAO {
         try (Connection conn = dbConn.getConnection()) {
 
             conn.setAutoCommit(false);
-            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // 트랜잭션 격리 수준 설정
 
             // 차량번호 확인 및 삽입
             try (PreparedStatement checkCarStmt = conn.prepareStatement(checkCarQuery)) {

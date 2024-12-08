@@ -12,6 +12,8 @@ import DAO.CarDAO;
 public class ParkingIOUI extends JPanel {
 
     private JPanel titlePanel; // 타이틀 패널을 멤버 변수로 선언
+    private CarInUI carInUI;
+    private CarOutUI carOutUI;
     private JButton entryButton; // 입차 버튼을 멤버 변수로 선언
     private JTextField carNumberField; // 차량번호 입력 필드
     private JTextField parkingIdField; // 주차장ID 입력 필드
@@ -19,8 +21,16 @@ public class ParkingIOUI extends JPanel {
     private JTextField exitCarNumberField; // 출차 차량번호 입력 필드
     private JPanel mainPanel; // 메인 패널을 멤버 변수로 선언
 
-    public ParkingIOUI(JPanel mainPanel) {
+    public void initialize() {
+        carNumberField.setText("");
+        parkingIdField.setText("");
+        spaceNumberField.setText("");
+    }
+
+    public ParkingIOUI(JPanel mainPanel, CarInUI carInUI, CarOutUI carOutUI) {
         this.mainPanel = mainPanel; // 메인 패널을 받아오기
+        this.carInUI = carInUI;
+        this.carOutUI = carOutUI;
         setLayout(null); // null 레이아웃 사용
         setBounds(0, 0, 1000, 600); // 패널 크기 설정
         setBackground(Color.WHITE); // 배경색을 흰색으로 설정
@@ -135,6 +145,7 @@ public class ParkingIOUI extends JPanel {
                             spaceNumberField.getText(),
                             parkingIdField.getText()
                     );
+                    initialize();
                     JOptionPane.showMessageDialog(this, message);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -150,6 +161,7 @@ public class ParkingIOUI extends JPanel {
         // 입차현황 버튼 클릭 이벤트 설정
         statusButton.addActionListener(e -> {
             CardLayout cardLayout = (CardLayout) mainPanel.getLayout(); // 메인 패널의 CardLayout 가져오기
+            carInUI.initialize();
             cardLayout.show(mainPanel, "CarInUI"); // CarInUI로 전환
         });
 
@@ -207,6 +219,7 @@ public class ParkingIOUI extends JPanel {
                     String message = carDAO.updateCarParking(
                             exitCarNumberField.getText()
                     );
+                    exitCarNumberField.setText("");
                     JOptionPane.showMessageDialog(this, message);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -220,7 +233,8 @@ public class ParkingIOUI extends JPanel {
         // 출차현황 버튼 클릭 이벤트 설정
         statusButton.addActionListener(e -> {
             CardLayout cardLayout = (CardLayout) mainPanel.getLayout(); // 메인 패널의 CardLayout 가져오기
-            cardLayout.show(mainPanel, "CarOutUI"); // CarInUI로 전환
+            carOutUI.initialize();
+            cardLayout.show(mainPanel, "CarOutUI"); // CarOutUI로 전환
         });
 
         // 기존 패널 제거 후 새 패널 추가

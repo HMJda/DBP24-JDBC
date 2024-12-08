@@ -10,9 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ParkingRecordUI extends JPanel {
-
     private DefaultTableModel tableModel;
     private JTable parkingTable;
+    private JTextField searchField;
+
+    public void initialize() {
+        searchField.setText("");
+        loadParkingRecords();
+    }
 
     public ParkingRecordUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -35,7 +40,7 @@ public class ParkingRecordUI extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(15);
+        searchField = new JTextField(15);
         searchPanel.add(searchField);
 
         // 검색 버튼 추가
