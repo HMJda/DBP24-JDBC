@@ -79,7 +79,7 @@ public class CarOutUI extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
 
-        JLabel titleLabel = new JLabel("입차 현황", JLabel.LEFT);
+        JLabel titleLabel = new JLabel("출차 현황", JLabel.LEFT);
         titleLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 16));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         headerPanel.add(titleLabel, BorderLayout.WEST);
