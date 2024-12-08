@@ -81,7 +81,16 @@ public class ParkingRecordUI extends JPanel {
         String query = "SELECT 차량.회원ID, 차량.차량번호, 주차.주차장ID, 주차.공간번호, " +
                 "주차.입차일시, 주차.출차일시 " +
                 "FROM 주차 " +
-                "JOIN 차량 ON 주차.차량번호 = 차량.차량번호"; // 데이터 조회 쿼리
+                "JOIN 차량 ON 주차.차량번호 = 차량.차량번호"
+                +" GROUP BY " +
+                "    차량.회원ID, "+
+                "    차량.차량번호, "+
+                "    주차.주차장ID, " +
+                "    주차.공간번호, " +
+                "    주차.입차일시, " +
+                "    주차.출차일시  " +
+                "ORDER BY " +
+                "    주차.입차일시 DESC" ; // 데이터 조회 쿼리
 
         try (Connection conn = dbConn.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query);
@@ -127,12 +136,21 @@ public class ParkingRecordUI extends JPanel {
                 "주차.입차일시, 주차.출차일시 " +
                 "FROM 주차 " +
                 "JOIN 차량 ON 주차.차량번호 = 차량.차량번호 " +
-                "WHERE 주차.차량번호 = ?"; // 검색 쿼리 수정
+                "WHERE 주차.차량번호 LIKE ?"
+                +" GROUP BY " +
+                "    차량.회원ID, "+
+                "    차량.차량번호, "+
+                "    주차.주차장ID, " +
+                "    주차.공간번호, " +
+                "    주차.입차일시, " +
+                "    주차.출차일시  " +
+                "ORDER BY " +
+                "    주차.입차일시 DESC" ;  // 검색 쿼리 수정
 
         try (Connection conn = dbConn.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
 
-            pstmt.setString(1, query); // 차량 번호 조건
+            pstmt.setString(1, "%" + query + "%"); // 차량 번호 조건
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 // 테이블 초기화

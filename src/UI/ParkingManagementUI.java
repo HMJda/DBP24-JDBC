@@ -14,6 +14,13 @@ public class ParkingManagementUI extends JPanel {
     private DefaultTableModel tableModel;
     private JTable inspectionTable;
     private String[] columnNames = {"주차장 ID", "관리자ID", "점검일시"};
+    private String query = "SELECT 주차장ID, 관리자ID, 점검일시 FROM 관리 ";
+    private String queryGBOB = " GROUP BY " +
+                                "    주차장ID, "+
+                                "    관리자ID, "+
+                                "    점검일시 " +
+                                "ORDER BY " +
+                                "    점검일시 DESC" ;
 
     public ParkingManagementUI(JPanel mainPanel) {
         setLayout(new BorderLayout());
@@ -79,11 +86,10 @@ public class ParkingManagementUI extends JPanel {
         DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
         dbConn.DB_Connect(); // 데이터베이스 연결
 
-        String query = "SELECT 관리.주차장ID, 관리.관리자ID, 관리.점검일시 " +
-                "FROM 관리"; // 데이터 조회 쿼리
+        String sQuery = query + queryGBOB;
 
         try (Connection conn = dbConn.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query);
+             PreparedStatement pstmt = conn.prepareStatement(sQuery);
              ResultSet rs = pstmt.executeQuery()) {
 
             // 테이블 초기화
@@ -110,8 +116,8 @@ public class ParkingManagementUI extends JPanel {
         }
     }
 
-    private void searchInspectionData(String query) {
-        if (query.trim().isEmpty()) {
+    private void searchInspectionData(String textfield) {
+        if (textfield.trim().isEmpty()) {
             // 검색어가 비어 있을 경우 모든 데이터를 로드
             loadInspectionData();
             return;
@@ -120,15 +126,14 @@ public class ParkingManagementUI extends JPanel {
         DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
         dbConn.DB_Connect(); // 데이터베이스 연결
 
-        String sqlQuery = "SELECT 관리.주차장ID, 관리.관리자ID, 관리.점검일시 " +
-                "FROM 관리 " +
-                "WHERE 관리.주차장ID = ? OR 관리.관리자ID = ?"; // 검색 쿼리
+        String sqlQuery =  query +
+                "WHERE 관리.주차장ID = ? OR 관리.관리자ID = ?" + queryGBOB; // 검색 쿼리
 
         try (Connection conn = dbConn.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
 
-            pstmt.setString(1, query); // 주차장 ID 조건
-            pstmt.setString(2, query); // 관리자 ID 조건
+            pstmt.setString(1, textfield); // 주차장 ID 조건
+            pstmt.setString(2, textfield); // 관리자 ID 조건
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 // 테이블 초기화
