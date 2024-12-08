@@ -15,21 +15,23 @@ import java.util.ArrayList;
 import java.sql.PreparedStatement;
 
 
-public class CarInUI extends JPanel {
+public class CarOutUI extends JPanel {
 
     private JTable parkingTable; // 주차 테이블을 표시할 JTable
     private DefaultTableModel tableModel; // 테이블 모델
-    private String[] columnNames = {"차량번호", "공간번호", "주차장ID", "입차일시"};
-    private String query = "SELECT 차량번호, 공간번호, 주차장ID, 입차일시 FROM 주차";
+    private String[] columnNames = {"차량번호", "공간번호", "주차장ID", "입차일시" , "출차일시"};
+    private String query = "SELECT 차량번호, 공간번호, 주차장ID, 입차일시, 출차일시 FROM 주차" +
+            " WHERE 출차일시 IS NOT NULL ";
     private String queryGBOB = " GROUP BY " +
-            "    차량번호, "+
-            "    공간번호, "+
-            "    주차장ID, " +
-            "    입차일시 " +
-            "ORDER BY " +
-            "    입차일시 DESC" ;
+                                "    차량번호, "+
+                                "    공간번호, "+
+                                "    주차장ID, " +
+                                "    입차일시, " +
+                                "    출차일시 " +
+                                "ORDER BY " +
+                                "    출차일시 DESC" ;
 
-    public CarInUI(JPanel mainPanel) {
+    public CarOutUI(JPanel mainPanel) {
         setLayout(new BorderLayout()); // 레이아웃 설정
         setBackground(Color.WHITE); // 배경색 설정
 
@@ -126,7 +128,8 @@ public class CarInUI extends JPanel {
         DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
         dbConn.DB_Connect(); // 데이터베이스 연결
 
-        String sQuery = query + queryGBOB; // 데이터 조회 쿼리
+        String sQuery = query;
+        sQuery += queryGBOB;
 
         try (Connection conn = dbConn.getConnection();
              Statement stmt = conn.createStatement();
@@ -141,8 +144,9 @@ public class CarInUI extends JPanel {
                 String spaceNumber = rs.getString("공간번호");
                 String parkingId = rs.getString("주차장ID");
                 String entryTime = rs.getString("입차일시");
+                String exitTime = rs.getString("출차일시");
 
-                tableModel.addRow(new Object[]{carNumber, spaceNumber, parkingId, entryTime}); // 새로운 행 추가
+                tableModel.addRow(new Object[]{carNumber, spaceNumber, parkingId, entryTime, exitTime}); // 새로운 행 추가
             }
 
             if (tableModel.getRowCount() == 0) {
@@ -157,15 +161,14 @@ public class CarInUI extends JPanel {
         }
     }
 
-    private void searchParkingData(String query) {
+    private void searchParkingData(String searchCarNumber) {
         DB_Conn dbConn = new DB_Conn(); // DB 연결 객체 생성
         dbConn.DB_Connect(); // 데이터베이스 연결
 
         String sqlQuery = query;
-
         // 입력된 검색어가 비어 있지 않으면 검색 쿼리를 추가
-        if (!query.trim().isEmpty()) {
-            sqlQuery += " WHERE 차량번호 LIKE ?";
+        if (!searchCarNumber.trim().isEmpty()) {
+            sqlQuery += " AND 차량번호 LIKE ? ";
         }
         sqlQuery += queryGBOB;
 
@@ -173,8 +176,8 @@ public class CarInUI extends JPanel {
              PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
 
             // 검색어가 있을 경우 차량번호 조건 추가
-            if (!query.trim().isEmpty()) {
-                pstmt.setString(1, "%" + query + "%"); // LIKE 연산자로 부분 일치를 찾기
+            if (!searchCarNumber.trim().isEmpty()) {
+                pstmt.setString(1, "%" + searchCarNumber + "%"); // LIKE 연산자로 부분 일치를 찾기
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -187,8 +190,9 @@ public class CarInUI extends JPanel {
                     String spaceNumber = rs.getString("공간번호");
                     String parkingId = rs.getString("주차장ID");
                     String entryTime = rs.getString("입차일시");
+                    String outTime = rs.getString("입차일시");
 
-                    tableModel.addRow(new Object[]{carNumber, spaceNumber, parkingId, entryTime}); // 새로운 행 추가
+                    tableModel.addRow(new Object[]{carNumber, spaceNumber, parkingId, entryTime, outTime}); // 새로운 행 추가
                 }
 
                 if (tableModel.getRowCount() == 0) {

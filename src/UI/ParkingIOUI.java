@@ -188,8 +188,16 @@ public class ParkingIOUI extends JPanel {
         submitButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
         submitButton.setBackground(Color.BLACK);
         submitButton.setForeground(Color.WHITE);
-        submitButton.setBounds(180, 200, 100, 30); // 위치 조정
+        submitButton.setBounds(120, 200, 100, 30);  // 위치 조정
         exitPanel.add(submitButton);
+
+        // 출차현황 버튼 추가
+        JButton statusButton = new JButton("출차현황");
+        statusButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
+        statusButton.setBackground(Color.BLACK);
+        statusButton.setForeground(Color.WHITE);
+        statusButton.setBounds(230, 200, 120, 30); // 기입 버튼 옆에 위치
+        exitPanel.add(statusButton);
 
         // 기입 버튼 클릭 이벤트 설정
         submitButton.addActionListener(e -> {
@@ -207,6 +215,12 @@ public class ParkingIOUI extends JPanel {
             } else {
                 JOptionPane.showMessageDialog(this, "차량번호를 입력하세요.");
             }
+        });
+
+        // 출차현황 버튼 클릭 이벤트 설정
+        statusButton.addActionListener(e -> {
+            CardLayout cardLayout = (CardLayout) mainPanel.getLayout(); // 메인 패널의 CardLayout 가져오기
+            cardLayout.show(mainPanel, "CarOutUI"); // CarInUI로 전환
         });
 
         // 기존 패널 제거 후 새 패널 추가

@@ -32,6 +32,10 @@ public class MainUI {
         CarInUI carInUI = new CarInUI(mainPanel); // 입차 현황 UI
         mainPanel.add(carInUI, "CarInUI");
 
+        // CarOutUI 추가
+        CarOutUI carOutUI = new CarOutUI(mainPanel); // 입차 현황 UI
+        mainPanel.add(carOutUI, "CarOutUI");
+
         ManagementUI managementUI = new ManagementUI(mainPanel); // 회원 정보 UI
         mainPanel.add(managementUI, "ManagementUI");
 
