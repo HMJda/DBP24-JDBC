@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import DAO.ParkingFeeDAO;
+import Controller.ParkingFeeController;
 
 public class ParkingFeeUI extends JPanel {
 
@@ -56,7 +56,7 @@ public class ParkingFeeUI extends JPanel {
     }
 
     private void calculateFee(String carNumber) {
-        ParkingFeeDAO dao = new ParkingFeeDAO();
+        ParkingFeeController dao = new ParkingFeeController();
         String resultMessage = dao.calculateFeeWithMemberInfo(carNumber); // 변경된 DAO 메서드 호출
 
         if (resultMessage != null) {

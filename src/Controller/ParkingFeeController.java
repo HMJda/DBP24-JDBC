@@ -1,9 +1,9 @@
-package DAO;
+package Controller;
 
 import DB.DB_Conn;
 import java.sql.*;
 
-public class ParkingFeeDAO {
+public class ParkingFeeController {
 
     // 차량 번호에 해당하는 회원 이름과 요금을 계산하여 반환
     public String calculateFeeWithMemberInfo(String carNumber) {

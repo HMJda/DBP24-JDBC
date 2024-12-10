@@ -1,7 +1,7 @@
 package UI;
 
 import DTO.MemberDTO;
-import DAO.MemberDAO;
+import Controller.MemberController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -104,8 +104,8 @@ public class MemberRegistrationUI extends JPanel {
                 memberDTO.setAddress(fields[6].getText());
                 memberDTO.setUsageType(fields[7].getText());
 
-                MemberDAO memberDAO = new MemberDAO();
-                String message = memberDAO.registerMember(memberDTO);
+                MemberController memberController = new MemberController();
+                String message = memberController.registerMember(memberDTO);
 
                 JOptionPane.showMessageDialog(this, message);
             } catch (Exception ex) {

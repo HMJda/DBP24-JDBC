@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import DTO.CarWarningDTO;
-import DAO.CarWarningDAO;
+import Controller.CarWarningController;
 
 public class VehicleWarningUI extends JPanel {
 
@@ -66,8 +66,8 @@ public class VehicleWarningUI extends JPanel {
                     carWarningDTO.setWarningReason(warningReasonField.getText());
 
 
-                    CarWarningDAO carWarningDAO = new CarWarningDAO();
-                    String message = carWarningDAO.registerWarning(carWarningDTO);
+                    CarWarningController carWarningController = new CarWarningController();
+                    String message = carWarningController.registerWarning(carWarningDTO);
 
                     JOptionPane.showMessageDialog(this, message);
                 } catch (Exception ex) {

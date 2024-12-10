@@ -1,6 +1,6 @@
 package UI;
 
-import DAO.CarDAO;
+import Controller.CarController;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -141,10 +141,10 @@ public class CarUsageUI extends JPanel {
     // 테이블 데이터를 갱신하는 메소드
     private void updateTableData() {
         tableModel.setRowCount(0);
-        CarDAO carDAO = new CarDAO();
+        CarController carController = new CarController();
         if ( !searchField.getText().isEmpty() && !searchField.getText().equals("차량번호")) {
             try {
-                List<Object[]> dataList = carDAO.getCarUsage(isSelected,searchField.getText(),sort); // 현재 sort 값을 기반으로 데이터를 가져옴
+                List<Object[]> dataList = carController.getCarUsage(isSelected,searchField.getText(),sort); // 현재 sort 값을 기반으로 데이터를 가져옴
                 for (Object[] row : dataList) {
                     tableModel.addRow(row);
                 }
@@ -153,7 +153,7 @@ public class CarUsageUI extends JPanel {
             }
         } else {
             try {
-                List<Object[]> dataList = carDAO.getCarUsage(isSelected,sort); // 현재 sort 값을 기반으로 데이터를 가져옴
+                List<Object[]> dataList = carController.getCarUsage(isSelected,sort); // 현재 sort 값을 기반으로 데이터를 가져옴
                 for (Object[] row : dataList) {
                     tableModel.addRow(row);
                 }

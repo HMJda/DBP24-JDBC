@@ -1,10 +1,10 @@
-package DAO;
+package Controller;
 
 import DB.DB_Conn;
 import DTO.CarWarningDTO;
 import java.sql.*;
 
-public class CarWarningDAO {
+public class CarWarningController {
     public String registerWarning(CarWarningDTO carWarning)throws SQLException {
         String resultMessage;
         // DB 연결 객체 가져오기

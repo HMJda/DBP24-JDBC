@@ -1,6 +1,6 @@
 package UI;
 
-import DAO.LoginDAO;
+import Controller.LoginController;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -85,8 +85,8 @@ public class Login {
         signInButton.addActionListener(e -> {
             String userId = idField.getText().trim();
             String password = new String(passwordField.getPassword());
-            LoginDAO loginDAO = new LoginDAO();
-            if (loginDAO.authenticate(userId, password)) { // 인증 성공
+            LoginController loginController = new LoginController();
+            if (loginController.authenticate(userId, password)) { // 인증 성공
                 new MainUI(userId); // 관리 UI 실행, ID를 전달
                 frame.dispose(); // 로그인 창 닫기
             } else {

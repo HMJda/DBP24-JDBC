@@ -1,4 +1,4 @@
-package DAO;
+package Controller;
 
 import DB.DB_Conn;
 
@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CarDAO {
+public class CarController {
     /** (트랜잭션) 차량 주차 입력 명령어 차량번호, 공간번호, 주차장 ID*/
     public String insertCarParking(String carNumber, String spaceNumber, String parkingSpaceId) {
         String resultMessage = "";

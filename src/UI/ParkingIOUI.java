@@ -1,13 +1,10 @@
 package UI;
 
 
-import DB.DB_Conn; // DB 연결을 위한 클래스
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import DAO.CarDAO;
+
+import Controller.CarController;
 
 public class ParkingIOUI extends JPanel {
 
@@ -139,8 +136,8 @@ public class ParkingIOUI extends JPanel {
             if (!carNumberField.getText().isEmpty()
                     && !spaceNumberField.getText().isEmpty() && !parkingIdField.getText().isEmpty()) {
                 try {
-                    CarDAO carDAO = new CarDAO();
-                    String message = carDAO.insertCarParking(
+                    CarController carController = new CarController();
+                    String message = carController.insertCarParking(
                             carNumberField.getText(),
                             spaceNumberField.getText(),
                             parkingIdField.getText()
@@ -215,8 +212,8 @@ public class ParkingIOUI extends JPanel {
         submitButton.addActionListener(e -> {
             if (!exitCarNumberField.getText().isEmpty()) {
                 try{
-                    CarDAO carDAO = new CarDAO();
-                    String message = carDAO.updateCarParking(
+                    CarController carController = new CarController();
+                    String message = carController.updateCarParking(
                             exitCarNumberField.getText()
                     );
                     exitCarNumberField.setText("");

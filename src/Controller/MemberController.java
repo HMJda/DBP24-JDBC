@@ -1,10 +1,10 @@
-package DAO;
+package Controller;
 
 import DTO.MemberDTO;
 import DB.DB_Conn;
 import java.sql.*;
 
-public class MemberDAO {
+public class MemberController {
     public String registerMember(MemberDTO member) throws SQLException {
         String resultMessage;
 
