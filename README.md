@@ -96,14 +96,50 @@
 ---
 
 
-## 📷 실행 화면 (추가 예정)
+## 🏗️ 시스템 아키텍처
+
+<p align="center">
+  <img src="./images/architecture.png" width="700"/>
+</p>
 
 ---
 
-## ERD 
+## 🔄 시스템 흐름도
 
-<img width="1051" height="657" alt="dbp_erd drawio(최종)" src="https://github.com/user-attachments/assets/6d973ea0-a6d7-47c1-9328-e904bbb3abfe" />
+<p align="center">
+  <img src="./images/flow.png" width="700"/>
+</p>
+
 ---
+
+## 🗄️ 데이터베이스 구조 (ERD)
+
+<p align="center">
+  <img src="./images/erd.png" width="700"/>
+</p>
+
+---
+
+## 💻 실행 화면
+
+### 🚘 메인 화면
+
+<p align="center">
+  <img src="./images/main.png" width="600"/>
+</p>
+
+### 🅿️ 주차 관리 화면
+
+<p align="center">
+  <img src="./images/parking.png" width="600"/>
+</p>
+
+### 🎟️ 주차권 관리 화면
+
+<p align="center">
+  <img src="./images/ticket.png" width="600"/>
+</p>
+
 
 ## 📄 라이선스
 
