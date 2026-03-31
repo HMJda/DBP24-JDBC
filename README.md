@@ -109,6 +109,9 @@
 ### 🚘 메인 화면
 
 <p align="center">
+  <img src="./images/login.png" width="600"/>
+</p>
+<p align="center">
   <img src="./images/main.png" width="600"/>
 </p>
 
@@ -118,10 +121,8 @@
   <img src="./images/parking.png" width="600"/>
 </p>
 
-### 🎟️ 주차권 관리 화면
-
 <p align="center">
-  <img src="./images/ticket.png" width="600"/>
+  <img src="./images/park.png" width="600"/>
 </p>
 
 
