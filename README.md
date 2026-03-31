@@ -95,19 +95,10 @@
 
 ---
 
-
 ## 🏗️ 시스템 아키텍처
 
 <p align="center">
   <img src="./images/architecture.png" width="700"/>
-</p>
-
----
-
-## 🔄 시스템 흐름도
-
-<p align="center">
-  <img src="./images/flow.png" width="700"/>
 </p>
 
 ---
