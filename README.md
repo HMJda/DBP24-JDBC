@@ -95,13 +95,6 @@
 
 ---
 
-## 🏗️ 시스템 아키텍처
-
-<p align="center">
-  <img src="./images/architecture.png" width="700"/>
-</p>
-
----
 
 ## 🗄️ 데이터베이스 구조 (ERD)
 
