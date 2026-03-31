@@ -100,6 +100,11 @@
 
 ---
 
+## ERD 
+
+<img width="1051" height="657" alt="dbp_erd drawio(최종)" src="https://github.com/user-attachments/assets/6d973ea0-a6d7-47c1-9328-e904bbb3abfe" />
+---
+
 ## 📄 라이선스
 
 해당 프로젝트는 학습 및 교육 목적으로 제작되었습니다.
